@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: vault
+resources:
+  - ../../base
+patches:
+  - path: namespace.yaml
+helmCharts:
+  - name: vault
+    namespace: vault
+    repo: https://helm.releases.hashicorp.com
+    releaseName: vault
+    version: 0.28.1
+    valuesFile: values.yaml
+secretGenerator:
+  - name: vault-kms
+    env: .env
+generatorOptions:
+  disableNameSuffixHash: true

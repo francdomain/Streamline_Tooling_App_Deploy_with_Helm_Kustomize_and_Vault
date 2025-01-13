@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tooling-deployment
+spec:
+  replicas: 3
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/role: 'tooling-role'
+        vault.hashicorp.com/agent-inject-status: 'update'
+        vault.hashicorp.com/agent-cache: 'false'
+        vault.hashicorp.com/agent-inject-secret-database-cred.txt: 'app/data/database/config/dev'
+        vault.hashicorp.com/agent-inject-template-database-cred.txt: |
+          {{- with secret "app/data/database/config/dev" -}}
+          export db_host={{ .Data.data.host }}
+          export db_password={{ .Data.data.password }}
+          export db_username={{ .Data.data.username }}
+          {{- end -}}
+    spec:
+      serviceAccountName: tooling-sa
+
+
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: tooling-deployment
+# spec:
+#   replicas: 3
+#   template:
+#     metadata:
+#       labels:
+#         app: tooling
+#     spec:
+#       containers:
+#         - name: tooling
+#           image: francdocmain/tooling-app:latest
+#           resources:
+#             requests:
+#               memory: "256Mi"
+#               cpu: "1"
+#             limits:
+#               memory: "512Mi"
+#               cpu: "2"
+#           env:
+#             - name: DB_HOST
+#               value: "aurora-endpoint"
+#             - name: DB_PORT
+#               value: "3306"
+#             - name: DB_NAME
+#               value: "tooling_db"
+#             - name: DB_USERNAME
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: aurora-db-credentials
+#                   key: DB_USERNAME
+#             - name: DB_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: aurora-db-credentials
+#                   key: DB_PASSWORD

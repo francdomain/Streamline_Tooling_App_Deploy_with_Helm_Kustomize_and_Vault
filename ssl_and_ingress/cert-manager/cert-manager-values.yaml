@@ -1,0 +1,9 @@
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1001
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::992382613070:role/cert-manager
+  name: cert-manager
+  namespace: cert-manager
+  automountServiceAccountToken: true
